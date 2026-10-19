@@ -7,4 +7,5 @@ import com.nutrilens.api.dto.response.AuthResponseDTO;
 public interface AuthService {
     AuthResponseDTO login(LoginRequestDTO request);
     AuthResponseDTO register(RegisterRequestDTO request);
+    AuthResponseDTO getCurrentUser(String username);
 }

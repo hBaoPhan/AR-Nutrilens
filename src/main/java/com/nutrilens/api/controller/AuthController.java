@@ -31,4 +31,12 @@ public class AuthController {
         AuthResponseDTO response = authService.register(request);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/me")
+    public ResponseEntity<AuthResponseDTO> getCurrentUser(java.security.Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.UNAUTHORIZED).build();
+        }
+        return ResponseEntity.ok(authService.getCurrentUser(principal.getName()));
+    }
 }

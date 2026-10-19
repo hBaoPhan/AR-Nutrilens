@@ -123,4 +123,20 @@ public class AuthServiceImpl implements AuthService {
                 .weightKg(savedUser.getWeightKg())
                 .build();
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AuthResponseDTO getCurrentUser(String username) {
+        User user = userRepository.findByUsernameAndIsActiveTrue(username)
+                .orElseThrow(() -> new EntityNotFoundException("User not found: " + username));
+
+        return AuthResponseDTO.builder()
+                .userId(user.getId())
+                .username(user.getUsername())
+                .fullName(user.getFullName())
+                .role(user.getRole())
+                .weightKg(user.getWeightKg())
+                .tokenType("Bearer")
+                .build();
+    }
 }
