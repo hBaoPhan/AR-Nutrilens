@@ -16,8 +16,13 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
 
+import com.nutrilens.api.dto.response.FoodItemResponseDTO;
+import java.util.List;
+
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -87,5 +92,35 @@ class NutritionEngineControllerTest {
                 .andExpect(jsonPath("$.validationErrors.volumeCm3").exists())
                 .andExpect(jsonPath("$.validationErrors.portionRatio").exists())
                 .andExpect(jsonPath("$.validationErrors.userWeightKg").exists());
+    }
+
+    @Test
+    @DisplayName("Should return 200 OK with list of foods for valid category")
+    void testGetFoodsReturnsList() throws Exception {
+        FoodItemResponseDTO salad = FoodItemResponseDTO.builder()
+                .id(1L)
+                .foodCode("SALAD_EGG")
+                .name("Salad with egg")
+                .category("Breakfast")
+                .kcal(new BigDecimal("294"))
+                .weightG(new BigDecimal("100.00"))
+                .volumeCm3(new BigDecimal("180.00"))
+                .proteinG(new BigDecimal("25"))
+                .carbsG(new BigDecimal("21"))
+                .fatG(new BigDecimal("14"))
+                .iconType("salad")
+                .iconBgColor("#FFEFE6")
+                .iconColor("#F37340")
+                .isHighlightedMore(false)
+                .build();
+
+        when(nutritionEngineService.getActiveFoods(eq("Breakfast"))).thenReturn(List.of(salad));
+
+        mockMvc.perform(get("/api/v1/nutrition/foods?category=Breakfast"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].foodCode").value("SALAD_EGG"))
+                .andExpect(jsonPath("$[0].name").value("Salad with egg"))
+                .andExpect(jsonPath("$[0].category").value("Breakfast"))
+                .andExpect(jsonPath("$[0].kcal").value(294));
     }
 }

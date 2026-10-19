@@ -62,4 +62,32 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.role").value("ROLE_USER"))
                 .andExpect(jsonPath("$.weightKg").value(65.00));
     }
+
+    @Test
+    @DisplayName("Should login successfully as admin with role ROLE_ADMIN")
+    void testAdminLoginSuccess() throws Exception {
+        AuthResponseDTO adminResponse = AuthResponseDTO.builder()
+                .token("mocked.admin.jwt.token")
+                .tokenType("Bearer")
+                .userId(99L)
+                .username("admin")
+                .fullName("NutriLens System Administrator")
+                .role("ROLE_ADMIN")
+                .weightKg(new BigDecimal("70.00"))
+                .build();
+
+        when(authService.login(any(LoginRequestDTO.class))).thenReturn(adminResponse);
+
+        LoginRequestDTO request = new LoginRequestDTO();
+        request.setUsername("admin");
+        request.setPassword("adminpasss");
+
+        mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").value("mocked.admin.jwt.token"))
+                .andExpect(jsonPath("$.username").value("admin"))
+                .andExpect(jsonPath("$.role").value("ROLE_ADMIN"));
+    }
 }

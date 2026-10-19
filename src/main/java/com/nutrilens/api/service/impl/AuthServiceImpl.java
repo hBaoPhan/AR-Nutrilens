@@ -36,19 +36,26 @@ public class AuthServiceImpl implements AuthService {
 
     @PostConstruct
     public void seedInitialUsers() {
-        if (!userRepository.existsByUsername("admin")) {
-            User admin = User.builder()
+        User admin = userRepository.findByUsername("admin").orElse(null);
+        if (admin == null) {
+            admin = User.builder()
                     .username("admin")
                     .email("admin@nutrilens.com")
-                    .passwordHash(passwordEncoder.encode("admin123"))
-                    .fullName("NutriLens System Admin")
+                    .passwordHash(passwordEncoder.encode("adminpasss"))
+                    .fullName("NutriLens System Administrator")
                     .weightKg(new BigDecimal("70.00"))
                     .heightCm(new BigDecimal("175.00"))
                     .role("ROLE_ADMIN")
                     .isActive(true)
                     .build();
             userRepository.save(admin);
-            log.info("Initialized default admin user: admin / admin123");
+            log.info("Initialized default admin user: admin / adminpasss");
+        } else {
+            admin.setPasswordHash(passwordEncoder.encode("adminpasss"));
+            admin.setRole("ROLE_ADMIN");
+            admin.setIsActive(true);
+            userRepository.save(admin);
+            log.info("Verified and updated admin user password to: adminpasss");
         }
 
         if (!userRepository.existsByUsername("user1")) {

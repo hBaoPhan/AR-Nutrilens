@@ -14,7 +14,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.nutrilens.api.dto.response.FoodItemResponseDTO;
+
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -110,5 +113,42 @@ class NutritionEngineServiceTest {
                 .build();
 
         assertThrows(EntityNotFoundException.class, () -> nutritionEngineService.analyzeVolumetricPortion(request));
+    }
+
+    @Test
+    @DisplayName("Should return active foods mapped to DTOs for a given category")
+    void testGetActiveFoods() {
+        FoodDensity salad = FoodDensity.builder()
+                .id(2L)
+                .foodCode("SALAD_EGG")
+                .displayName("Salad with egg")
+                .category("Breakfast")
+                .densityGramsPerCm3(new BigDecimal("0.5556"))
+                .kcalPer100g(new BigDecimal("294.00"))
+                .proteinPer100g(new BigDecimal("25.00"))
+                .carbPer100g(new BigDecimal("21.00"))
+                .fatPer100g(new BigDecimal("14.00"))
+                .servingWeightG(new BigDecimal("100.00"))
+                .servingVolumeCm3(new BigDecimal("180.00"))
+                .emoji("🥗")
+                .iconType("salad")
+                .iconBgColor("#FFEFE6")
+                .iconColor("#F37340")
+                .isHighlightedMore(false)
+                .isActive(true)
+                .build();
+
+        when(foodDensityRepository.findAllByCategoryIgnoreCaseAndIsActiveTrue("Breakfast"))
+                .thenReturn(List.of(salad));
+
+        List<FoodItemResponseDTO> foods = nutritionEngineService.getActiveFoods("Breakfast");
+
+        assertNotNull(foods);
+        assertEquals(1, foods.size());
+        FoodItemResponseDTO dto = foods.get(0);
+        assertEquals("SALAD_EGG", dto.getFoodCode());
+        assertEquals("Salad with egg", dto.getName());
+        assertEquals("Breakfast", dto.getCategory());
+        assertEquals(new BigDecimal("294"), dto.getKcal());
     }
 }

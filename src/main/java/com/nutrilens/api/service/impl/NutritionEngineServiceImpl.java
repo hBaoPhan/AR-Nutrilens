@@ -1,11 +1,13 @@
 package com.nutrilens.api.service.impl;
 
 import com.nutrilens.api.dto.request.VolumetricNutritionRequestDTO;
+import com.nutrilens.api.dto.response.FoodItemResponseDTO;
 import com.nutrilens.api.dto.response.NutritionAnalysisResponseDTO;
 import com.nutrilens.api.entity.FoodDensity;
 import com.nutrilens.api.exception.EntityNotFoundException;
 import com.nutrilens.api.repository.FoodDensityRepository;
 import com.nutrilens.api.service.NutritionEngineService;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -13,11 +15,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class NutritionEngineServiceImpl implements NutritionEngineService {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(NutritionEngineServiceImpl.class);
 
     private final FoodDensityRepository foodDensityRepository;
 
@@ -30,6 +36,175 @@ public class NutritionEngineServiceImpl implements NutritionEngineService {
     private static final BigDecimal WALKING_MET = BigDecimal.valueOf(3.8);   // ~5 km/h brisk walking
     private static final BigDecimal OXYGEN_CONSUMPTION_FACTOR = BigDecimal.valueOf(3.5);
     private static final BigDecimal MET_DIVISOR = BigDecimal.valueOf(200);
+
+    @PostConstruct
+    public void seedInitialFoodDensities() {
+        seedFoodItem("SALAD_EGG", "Salad with egg", "Breakfast",
+                new BigDecimal("0.5556"), new BigDecimal("294.00"), new BigDecimal("25.00"),
+                new BigDecimal("21.00"), new BigDecimal("14.00"), new BigDecimal("100.00"),
+                new BigDecimal("180.00"), "🥗", "salad", "#FFEFE6", "#F37340", false);
+
+        seedFoodItem("GREEN_VEG", "Green vegetable", "Breakfast",
+                new BigDecimal("0.8333"), new BigDecimal("197.00"), new BigDecimal("13.50"),
+                new BigDecimal("16.00"), new BigDecimal("21.00"), new BigDecimal("200.00"),
+                new BigDecimal("240.00"), "🥦", "vegetable", "#E8F8ED", "#27AE60", true);
+
+        seedFoodItem("PINEAPPLE", "Slice of Pineapple", "Breakfast",
+                new BigDecimal("0.4762"), new BigDecimal("457.00"), new BigDecimal("84.00"),
+                new BigDecimal("95.00"), new BigDecimal("72.00"), new BigDecimal("100.00"),
+                new BigDecimal("210.00"), "🍍", "pineapple", "#FFF7E0", "#F2C94C", false);
+
+        seedFoodItem("GREEK_YOGURT", "Sữa Chua Hy Lạp Trái Cây", "Breakfast",
+                new BigDecimal("0.9375"), new BigDecimal("140.00"), new BigDecimal("12.00"),
+                new BigDecimal("14.67"), new BigDecimal("3.33"), new BigDecimal("150.00"),
+                new BigDecimal("160.00"), "🥣", "salad", "#FFEFE6", "#F37340", false);
+
+        seedFoodItem("BROKEN_RICE", "Cơm Tấm Sườn Bì Chả", "Lunch",
+                new BigDecimal("1.0857"), new BigDecimal("171.05"), new BigDecimal("10.00"),
+                new BigDecimal("18.95"), new BigDecimal("6.32"), new BigDecimal("380.00"),
+                new BigDecimal("350.00"), "🍚", "salad", "#FFEBE0", "#D95933", false);
+
+        seedFoodItem("CHICKEN_SALAD", "Salad Ức Gà Áp Chảo", "Lunch",
+                new BigDecimal("0.8929"), new BigDecimal("168.00"), new BigDecimal("18.00"),
+                new BigDecimal("6.00"), new BigDecimal("4.80"), new BigDecimal("250.00"),
+                new BigDecimal("280.00"), "🥗", "salad", "#E8F8ED", "#27AE60", true);
+
+        seedFoodItem("RICE_WHITE_COOKED", "Cơm trắng", "Lunch",
+                new BigDecimal("0.8500"), new BigDecimal("130.00"), new BigDecimal("2.70"),
+                new BigDecimal("28.20"), new BigDecimal("0.30"), new BigDecimal("200.00"),
+                new BigDecimal("235.00"), "🍚", "salad", "#F4F6F8", "#4A5568", false);
+
+        seedFoodItem("BEEF_PHO", "Phở Bò Tái Nạm", "Dinner",
+                new BigDecimal("1.1250"), new BigDecimal("115.56"), new BigDecimal("7.11"),
+                new BigDecimal("12.89"), new BigDecimal("3.56"), new BigDecimal("450.00"),
+                new BigDecimal("400.00"), "🍜", "vegetable", "#EBF3FF", "#3380D9", false);
+
+        seedFoodItem("SALMON_STEAK", "Cá Hồi Nướng Măng Tây", "Dinner",
+                new BigDecimal("1.1538"), new BigDecimal("193.33"), new BigDecimal("14.00"),
+                new BigDecimal("2.67"), new BigDecimal("9.33"), new BigDecimal("300.00"),
+                new BigDecimal("260.00"), "🥩", "salad", "#FFEFE6", "#F37340", true);
+
+        // New diverse data additions for testing
+        seedFoodItem("OATMEAL_BERRY", "Yến Mạch Việt Quất & Hạt Chia", "Breakfast",
+                new BigDecimal("1.0476"), new BigDecimal("127.27"), new BigDecimal("5.45"),
+                new BigDecimal("20.91"), new BigDecimal("2.73"), new BigDecimal("220.00"),
+                new BigDecimal("210.00"), "🥣", "salad", "#FFEFE6", "#9B51E0", false);
+
+        seedFoodItem("AVOCADO_TOAST", "Bánh Mì Bơ Trứng Chần", "Breakfast",
+                new BigDecimal("0.8889"), new BigDecimal("225.00"), new BigDecimal("9.38"),
+                new BigDecimal("18.75"), new BigDecimal("12.50"), new BigDecimal("160.00"),
+                new BigDecimal("180.00"), "🥑", "salad", "#E8F8ED", "#27AE60", true);
+
+        seedFoodItem("BUN_CHA_HA_NOI", "Bún Chả Hà Nội Nướng Than", "Lunch",
+                new BigDecimal("1.0769"), new BigDecimal("128.57"), new BigDecimal("6.67"),
+                new BigDecimal("16.19"), new BigDecimal("4.29"), new BigDecimal("420.00"),
+                new BigDecimal("390.00"), "🍲", "vegetable", "#FFF7E0", "#D95933", false);
+
+        seedFoodItem("BEEF_QUINOA_BOWL", "Cơm Quinoa Bò Áp Chảo", "Lunch",
+                new BigDecimal("1.0323"), new BigDecimal("153.13"), new BigDecimal("11.25"),
+                new BigDecimal("15.00"), new BigDecimal("5.00"), new BigDecimal("320.00"),
+                new BigDecimal("310.00"), "🥗", "salad", "#FFEFE6", "#F37340", true);
+
+        seedFoodItem("CANH_CHUA_CA_HOI", "Canh Chua Cá Hồi Nam Bộ", "Dinner",
+                new BigDecimal("1.0526"), new BigDecimal("77.50"), new BigDecimal("6.50"),
+                new BigDecimal("3.50"), new BigDecimal("4.00"), new BigDecimal("400.00"),
+                new BigDecimal("380.00"), "🍲", "vegetable", "#EBF3FF", "#3380D9", false);
+
+        seedFoodItem("GRILLED_CHICKEN_BREAST", "Ức Gà Nướng Rau Củ Cầu Vồng", "Dinner",
+                new BigDecimal("0.9655"), new BigDecimal("135.71"), new BigDecimal("15.71"),
+                new BigDecimal("6.43"), new BigDecimal("5.00"), new BigDecimal("280.00"),
+                new BigDecimal("290.00"), "🍗", "salad", "#E8F8ED", "#27AE60", true);
+
+        log.info("Initialized NutriLens Food Database seeds (15 dishes across Breakfast, Lunch, Dinner).");
+    }
+
+    private void seedFoodItem(String foodCode, String displayName, String category,
+                              BigDecimal density, BigDecimal kcal100g, BigDecimal p100g,
+                              BigDecimal c100g, BigDecimal f100g, BigDecimal servingWeightG,
+                              BigDecimal servingVolumeCm3, String emoji, String iconType,
+                              String iconBgColor, String iconColor, boolean isHighlightedMore) {
+        FoodDensity food = foodDensityRepository.findByFoodCode(foodCode).orElse(null);
+        if (food == null) {
+            food = FoodDensity.builder()
+                    .foodCode(foodCode)
+                    .displayName(displayName)
+                    .category(category)
+                    .densityGramsPerCm3(density)
+                    .kcalPer100g(kcal100g)
+                    .proteinPer100g(p100g)
+                    .carbPer100g(c100g)
+                    .fatPer100g(f100g)
+                    .servingWeightG(servingWeightG)
+                    .servingVolumeCm3(servingVolumeCm3)
+                    .emoji(emoji)
+                    .iconType(iconType)
+                    .iconBgColor(iconBgColor)
+                    .iconColor(iconColor)
+                    .isHighlightedMore(isHighlightedMore)
+                    .isActive(true)
+                    .build();
+            foodDensityRepository.save(food);
+        } else {
+            // Update fields if already exists
+            food.setDisplayName(displayName);
+            food.setCategory(category);
+            food.setDensityGramsPerCm3(density);
+            food.setKcalPer100g(kcal100g);
+            food.setProteinPer100g(p100g);
+            food.setCarbPer100g(c100g);
+            food.setFatPer100g(f100g);
+            food.setServingWeightG(servingWeightG);
+            food.setServingVolumeCm3(servingVolumeCm3);
+            food.setEmoji(emoji);
+            food.setIconType(iconType);
+            food.setIconBgColor(iconBgColor);
+            food.setIconColor(iconColor);
+            food.setIsHighlightedMore(isHighlightedMore);
+            food.setIsActive(true);
+            foodDensityRepository.save(food);
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<FoodItemResponseDTO> getActiveFoods(String category) {
+        List<FoodDensity> foods;
+        if (category != null && !category.trim().isEmpty() && !category.equalsIgnoreCase("ALL")) {
+            foods = foodDensityRepository.findAllByCategoryIgnoreCaseAndIsActiveTrue(category.trim());
+        } else {
+            foods = foodDensityRepository.findAllByIsActiveTrue();
+        }
+
+        return foods.stream().map(this::mapToDTO).collect(Collectors.toList());
+    }
+
+    private FoodItemResponseDTO mapToDTO(FoodDensity food) {
+        BigDecimal weight = food.getServingWeightG() != null ? food.getServingWeightG() : BigDecimal.valueOf(100);
+        BigDecimal factor = weight.divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP);
+
+        BigDecimal totalKcal = food.getKcalPer100g().multiply(factor).setScale(0, RoundingMode.HALF_UP);
+        BigDecimal totalProtein = food.getProteinPer100g().multiply(factor).setScale(0, RoundingMode.HALF_UP);
+        BigDecimal totalCarbs = food.getCarbPer100g().multiply(factor).setScale(0, RoundingMode.HALF_UP);
+        BigDecimal totalFat = food.getFatPer100g().multiply(factor).setScale(0, RoundingMode.HALF_UP);
+
+        return FoodItemResponseDTO.builder()
+                .id(food.getId())
+                .foodCode(food.getFoodCode())
+                .name(food.getDisplayName())
+                .category(food.getCategory() != null ? food.getCategory() : "Breakfast")
+                .kcal(totalKcal)
+                .weightG(weight)
+                .volumeCm3(food.getServingVolumeCm3() != null ? food.getServingVolumeCm3() : BigDecimal.valueOf(150))
+                .proteinG(totalProtein)
+                .carbsG(totalCarbs)
+                .fatG(totalFat)
+                .emoji(food.getEmoji() != null ? food.getEmoji() : "🥗")
+                .iconType(food.getIconType() != null ? food.getIconType() : "salad")
+                .iconBgColor(food.getIconBgColor() != null ? food.getIconBgColor() : "#FFEFE6")
+                .iconColor(food.getIconColor() != null ? food.getIconColor() : "#F37340")
+                .isHighlightedMore(Boolean.TRUE.equals(food.getIsHighlightedMore()))
+                .build();
+    }
 
     @Override
     @Transactional(readOnly = true)
