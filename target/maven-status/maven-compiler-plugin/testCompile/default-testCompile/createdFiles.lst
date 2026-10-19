@@ -1,0 +1,3 @@
+com\nutrilens\api\controller\AuthControllerTest.class
+com\nutrilens\api\service\NutritionEngineServiceTest.class
+com\nutrilens\api\controller\NutritionEngineControllerTest.class
