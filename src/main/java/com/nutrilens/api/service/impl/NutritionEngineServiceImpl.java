@@ -115,7 +115,28 @@ public class NutritionEngineServiceImpl implements NutritionEngineService {
                 new BigDecimal("6.43"), new BigDecimal("5.00"), new BigDecimal("280.00"),
                 new BigDecimal("290.00"), "🍗", "salad", "#E8F8ED", "#27AE60", true);
 
-        log.info("Initialized NutriLens Food Database seeds (15 dishes across Breakfast, Lunch, Dinner).");
+        // Real-world Vision AI foods (COCO / Real Object Detection)
+        seedFoodItem("APPLE", "Táo Đỏ Tươi", "Breakfast",
+                new BigDecimal("0.8500"), new BigDecimal("52.00"), new BigDecimal("0.30"),
+                new BigDecimal("13.80"), new BigDecimal("0.20"), new BigDecimal("182.00"),
+                new BigDecimal("214.00"), "🍎", "pineapple", "#FFEFE6", "#EB5757", false);
+
+        seedFoodItem("BANANA", "Chuối Chín", "Breakfast",
+                new BigDecimal("0.9500"), new BigDecimal("89.00"), new BigDecimal("1.10"),
+                new BigDecimal("22.80"), new BigDecimal("0.30"), new BigDecimal("120.00"),
+                new BigDecimal("126.00"), "🍌", "pineapple", "#FFF7E0", "#F2C94C", false);
+
+        seedFoodItem("ORANGE", "Cam Vàng Tươi", "Breakfast",
+                new BigDecimal("0.9000"), new BigDecimal("47.00"), new BigDecimal("0.90"),
+                new BigDecimal("11.80"), new BigDecimal("0.10"), new BigDecimal("150.00"),
+                new BigDecimal("166.00"), "🍊", "pineapple", "#FFEFE6", "#F2994A", false);
+
+        seedFoodItem("PIZZA", "Pizza Phô Mai & Nấm", "Lunch",
+                new BigDecimal("0.8000"), new BigDecimal("266.00"), new BigDecimal("11.00"),
+                new BigDecimal("33.00"), new BigDecimal("10.00"), new BigDecimal("200.00"),
+                new BigDecimal("250.00"), "🍕", "salad", "#FFEBE0", "#D95933", false);
+
+        log.info("Initialized NutriLens Food Database seeds (19 dishes across Breakfast, Lunch, Dinner).");
     }
 
     private void seedFoodItem(String foodCode, String displayName, String category,

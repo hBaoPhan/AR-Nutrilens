@@ -77,14 +77,20 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional(readOnly = true)
     public AuthResponseDTO login(LoginRequestDTO request) {
+        log.info("[AUTH SERVICE] Validating login for user '{}'", request.getUsername());
         User user = userRepository.findByUsernameAndIsActiveTrue(request.getUsername())
-                .orElseThrow(() -> new EntityNotFoundException("User not found or account inactive: " + request.getUsername()));
+                .orElseThrow(() -> {
+                    log.warn("[AUTH SERVICE] Login rejected: user '{}' not found or inactive", request.getUsername());
+                    return new EntityNotFoundException("User not found or account inactive: " + request.getUsername());
+                });
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
+            log.warn("[AUTH SERVICE] Login rejected: invalid password for user '{}'", request.getUsername());
             throw new IllegalArgumentException("Invalid password credentials");
         }
 
         String token = jwtTokenProvider.generateToken(user.getUsername());
+        log.info("[AUTH SERVICE] Token generated successfully for user '{}' with role '{}'", user.getUsername(), user.getRole());
 
         return AuthResponseDTO.builder()
                 .token(token)
@@ -100,10 +106,13 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public AuthResponseDTO register(RegisterRequestDTO request) {
+        log.info("[AUTH SERVICE] Processing registration for user '{}', email '{}'", request.getUsername(), request.getEmail());
         if (userRepository.existsByUsername(request.getUsername())) {
+            log.warn("[AUTH SERVICE] Register rejected: username '{}' already exists", request.getUsername());
             throw new IllegalArgumentException("Username is already taken");
         }
         if (userRepository.existsByEmail(request.getEmail())) {
+            log.warn("[AUTH SERVICE] Register rejected: email '{}' already registered", request.getEmail());
             throw new IllegalArgumentException("Email is already registered");
         }
 
