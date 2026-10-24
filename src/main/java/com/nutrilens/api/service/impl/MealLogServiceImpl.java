@@ -200,7 +200,10 @@ public class MealLogServiceImpl implements MealLogService {
         MealLog logEntity = new MealLog();
         logEntity.setUser(user);
         logEntity.setMealType(request.getMealType() != null ? request.getMealType().toUpperCase() : "LUNCH");
-        logEntity.setLoggedAt(LocalDateTime.now());
+        LocalDateTime logTime = request.getLoggedAt() != null
+                ? request.getLoggedAt()
+                : LocalDateTime.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh"));
+        logEntity.setLoggedAt(logTime);
         logEntity.setTotalVolumeCm3(request.getTotalVolumeCm3() != null ? request.getTotalVolumeCm3() : BigDecimal.ZERO);
         logEntity.setTotalWeightG(request.getTotalWeightG() != null ? request.getTotalWeightG() : BigDecimal.ZERO);
         logEntity.setTotalKcal(request.getTotalKcal() != null ? request.getTotalKcal() : BigDecimal.ZERO);

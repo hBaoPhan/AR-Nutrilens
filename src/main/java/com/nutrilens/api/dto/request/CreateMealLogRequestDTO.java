@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class CreateMealLogRequestDTO {
@@ -16,6 +17,8 @@ public class CreateMealLogRequestDTO {
 
     @NotBlank(message = "Meal type is required (Breakfast, Lunch, Dinner)")
     private String mealType;
+
+    private LocalDateTime loggedAt;
 
     private BigDecimal totalVolumeCm3;
 
@@ -48,6 +51,9 @@ public class CreateMealLogRequestDTO {
 
     public String getMealType() { return mealType; }
     public void setMealType(String mealType) { this.mealType = mealType; }
+
+    public LocalDateTime getLoggedAt() { return loggedAt; }
+    public void setLoggedAt(LocalDateTime loggedAt) { this.loggedAt = loggedAt; }
 
     public BigDecimal getTotalVolumeCm3() { return totalVolumeCm3; }
     public void setTotalVolumeCm3(BigDecimal totalVolumeCm3) { this.totalVolumeCm3 = totalVolumeCm3; }
