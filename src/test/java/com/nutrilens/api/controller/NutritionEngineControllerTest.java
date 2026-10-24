@@ -2,7 +2,12 @@ package com.nutrilens.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nutrilens.api.config.SecurityConfig;
+import com.nutrilens.api.dto.request.MultiVolumetricNutritionRequestDTO;
+import com.nutrilens.api.dto.request.VolumetricComponentItemDTO;
 import com.nutrilens.api.dto.request.VolumetricNutritionRequestDTO;
+import com.nutrilens.api.dto.response.ComponentNutritionResultDTO;
+import com.nutrilens.api.dto.response.FoodItemResponseDTO;
+import com.nutrilens.api.dto.response.MultiNutritionAnalysisResponseDTO;
 import com.nutrilens.api.dto.response.NutritionAnalysisResponseDTO;
 import com.nutrilens.api.service.NutritionEngineService;
 import org.junit.jupiter.api.DisplayName;
@@ -122,5 +127,82 @@ class NutritionEngineControllerTest {
                 .andExpect(jsonPath("$[0].name").value("Salad with egg"))
                 .andExpect(jsonPath("$[0].category").value("Breakfast"))
                 .andExpect(jsonPath("$[0].kcal").value(294));
+    }
+
+    @Test
+    @DisplayName("Should return 200 OK when multi-component volumetric request is valid (2 eggs and 1 carrot)")
+    void testMultiComponentVolumetricAnalysisReturns200() throws Exception {
+        ComponentNutritionResultDTO egg1 = ComponentNutritionResultDTO.builder()
+                .foodCode("BOILED_EGG")
+                .displayName("Trứng Gà Luộc")
+                .foodType("ATOMIC_INGREDIENT")
+                .emoji("🥚")
+                .effectiveVolumeCm3(new BigDecimal("48.54"))
+                .estimatedWeightGrams(new BigDecimal("50.00"))
+                .caloriesKcal(new BigDecimal("77.5"))
+                .proteinGrams(new BigDecimal("6.50"))
+                .carbGrams(new BigDecimal("0.55"))
+                .fatGrams(new BigDecimal("5.50"))
+                .build();
+
+        ComponentNutritionResultDTO egg2 = ComponentNutritionResultDTO.builder()
+                .foodCode("BOILED_EGG")
+                .displayName("Trứng Gà Luộc")
+                .foodType("ATOMIC_INGREDIENT")
+                .emoji("🥚")
+                .effectiveVolumeCm3(new BigDecimal("48.54"))
+                .estimatedWeightGrams(new BigDecimal("50.00"))
+                .caloriesKcal(new BigDecimal("77.5"))
+                .proteinGrams(new BigDecimal("6.50"))
+                .carbGrams(new BigDecimal("0.55"))
+                .fatGrams(new BigDecimal("5.50"))
+                .build();
+
+        ComponentNutritionResultDTO carrot = ComponentNutritionResultDTO.builder()
+                .foodCode("CARROT")
+                .displayName("Cà Rốt Luộc / Tươi")
+                .foodType("ATOMIC_INGREDIENT")
+                .emoji("🥕")
+                .effectiveVolumeCm3(new BigDecimal("120.00"))
+                .estimatedWeightGrams(new BigDecimal("100.00"))
+                .caloriesKcal(new BigDecimal("41.0"))
+                .proteinGrams(new BigDecimal("0.90"))
+                .carbGrams(new BigDecimal("9.60"))
+                .fatGrams(new BigDecimal("0.20"))
+                .build();
+
+        MultiNutritionAnalysisResponseDTO mockResponse = MultiNutritionAnalysisResponseDTO.builder()
+                .totalComponentsCount(3)
+                .totalEffectiveVolumeCm3(new BigDecimal("217.08"))
+                .totalEstimatedWeightGrams(new BigDecimal("200.00"))
+                .totalCaloriesKcal(new BigDecimal("196.0"))
+                .totalProteinGrams(new BigDecimal("13.90"))
+                .totalCarbGrams(new BigDecimal("10.70"))
+                .totalFatGrams(new BigDecimal("11.20"))
+                .runningMinutesNeeded(20)
+                .briskWalkingMinutesNeeded(43)
+                .components(List.of(egg1, egg2, carrot))
+                .build();
+
+        when(nutritionEngineService.analyzeMultiVolumetricPortion(any(MultiVolumetricNutritionRequestDTO.class)))
+                .thenReturn(mockResponse);
+
+        MultiVolumetricNutritionRequestDTO request = MultiVolumetricNutritionRequestDTO.builder()
+                .userWeightKg(new BigDecimal("65.0"))
+                .components(List.of(
+                        VolumetricComponentItemDTO.builder().foodCode("BOILED_EGG").volumeCm3(new BigDecimal("48.54")).portionRatio(BigDecimal.ONE).build(),
+                        VolumetricComponentItemDTO.builder().foodCode("BOILED_EGG").volumeCm3(new BigDecimal("48.54")).portionRatio(BigDecimal.ONE).build(),
+                        VolumetricComponentItemDTO.builder().foodCode("CARROT").volumeCm3(new BigDecimal("120.00")).portionRatio(BigDecimal.ONE).build()
+                ))
+                .build();
+
+        mockMvc.perform(post("/api/v1/nutrition/multi-volumetric-analyze")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalComponentsCount").value(3))
+                .andExpect(jsonPath("$.totalCaloriesKcal").value(196.0))
+                .andExpect(jsonPath("$.components[0].foodCode").value("BOILED_EGG"))
+                .andExpect(jsonPath("$.components[2].foodCode").value("CARROT"));
     }
 }

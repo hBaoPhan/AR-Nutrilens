@@ -1,7 +1,11 @@
 package com.nutrilens.api.service.impl;
 
+import com.nutrilens.api.dto.request.MultiVolumetricNutritionRequestDTO;
+import com.nutrilens.api.dto.request.VolumetricComponentItemDTO;
 import com.nutrilens.api.dto.request.VolumetricNutritionRequestDTO;
+import com.nutrilens.api.dto.response.ComponentNutritionResultDTO;
 import com.nutrilens.api.dto.response.FoodItemResponseDTO;
+import com.nutrilens.api.dto.response.MultiNutritionAnalysisResponseDTO;
 import com.nutrilens.api.dto.response.NutritionAnalysisResponseDTO;
 import com.nutrilens.api.entity.FoodDensity;
 import com.nutrilens.api.exception.EntityNotFoundException;
@@ -15,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,7 +44,7 @@ public class NutritionEngineServiceImpl implements NutritionEngineService {
 
     @PostConstruct
     public void seedInitialFoodDensities() {
-        seedFoodItem("SALAD_EGG", "Salad with egg", "Breakfast",
+        seedFoodItem("SALAD_EGG", "Salad Trứng Luộc Rau Mầm", "Breakfast",
                 new BigDecimal("0.5556"), new BigDecimal("294.00"), new BigDecimal("25.00"),
                 new BigDecimal("21.00"), new BigDecimal("14.00"), new BigDecimal("100.00"),
                 new BigDecimal("180.00"), "🥗", "salad", "#FFEFE6", "#F37340", false);
@@ -136,10 +141,65 @@ public class NutritionEngineServiceImpl implements NutritionEngineService {
                 new BigDecimal("33.00"), new BigDecimal("10.00"), new BigDecimal("200.00"),
                 new BigDecimal("250.00"), "🍕", "salad", "#FFEBE0", "#D95933", false);
 
-        log.info("Initialized NutriLens Food Database seeds (19 dishes across Breakfast, Lunch, Dinner).");
+        // Atomic Ingredients / Common Components
+        seedFoodItem("BOILED_EGG", "Trứng Gà Luộc", "Breakfast", "ATOMIC_INGREDIENT",
+                new BigDecimal("1.0300"), new BigDecimal("155.00"), new BigDecimal("13.00"),
+                new BigDecimal("1.10"), new BigDecimal("11.00"), new BigDecimal("50.00"),
+                new BigDecimal("48.54"), "🥚", "egg", "#FFF9E6", "#F2994A", true);
+
+        seedFoodItem("CARROT", "Cà Rốt Luộc / Tươi", "Lunch", "ATOMIC_INGREDIENT",
+                new BigDecimal("0.8333"), new BigDecimal("41.00"), new BigDecimal("0.90"),
+                new BigDecimal("9.60"), new BigDecimal("0.20"), new BigDecimal("100.00"),
+                new BigDecimal("120.00"), "🥕", "vegetable", "#FFF0E6", "#EB5757", true);
+
+        seedFoodItem("CHICKEN_BREAST", "Ức Gà Nướng / Luộc", "Dinner", "ATOMIC_INGREDIENT",
+                new BigDecimal("0.9800"), new BigDecimal("165.00"), new BigDecimal("31.00"),
+                new BigDecimal("0.00"), new BigDecimal("3.60"), new BigDecimal("150.00"),
+                new BigDecimal("153.06"), "🍗", "meat", "#EBF5FB", "#2980B9", true);
+
+        seedFoodItem("BROCCOLI", "Súp Lơ Xanh Luộc", "Lunch", "ATOMIC_INGREDIENT",
+                new BigDecimal("0.5200"), new BigDecimal("34.00"), new BigDecimal("2.80"),
+                new BigDecimal("6.60"), new BigDecimal("0.40"), new BigDecimal("150.00"),
+                new BigDecimal("288.46"), "🥦", "vegetable", "#E8F8ED", "#27AE60", true);
+
+        seedFoodItem("SWEET_POTATO", "Khoai Lang Luộc", "Breakfast", "ATOMIC_INGREDIENT",
+                new BigDecimal("0.9500"), new BigDecimal("86.00"), new BigDecimal("1.60"),
+                new BigDecimal("20.10"), new BigDecimal("0.10"), new BigDecimal("150.00"),
+                new BigDecimal("157.89"), "🍠", "vegetable", "#FDF2E9", "#E67E22", false);
+
+        seedFoodItem("TOFU_STEAMED", "Đậu Phụ Trắng Luộc", "Lunch", "ATOMIC_INGREDIENT",
+                new BigDecimal("0.9600"), new BigDecimal("76.00"), new BigDecimal("8.00"),
+                new BigDecimal("1.90"), new BigDecimal("4.80"), new BigDecimal("150.00"),
+                new BigDecimal("156.25"), "🧈", "salad", "#F4F6F7", "#7F8C8D", false);
+
+        seedFoodItem("SHRIMP_BOILED", "Tôm Luộc Bóc Vỏ", "Dinner", "ATOMIC_INGREDIENT",
+                new BigDecimal("1.0200"), new BigDecimal("99.00"), new BigDecimal("24.00"),
+                new BigDecimal("0.20"), new BigDecimal("0.30"), new BigDecimal("100.00"),
+                new BigDecimal("98.04"), "🦐", "salad", "#FDEDEC", "#E74C3C", false);
+
+        seedFoodItem("CUCUMBER", "Dưa Chuột Tươi", "Lunch", "ATOMIC_INGREDIENT",
+                new BigDecimal("0.6800"), new BigDecimal("15.00"), new BigDecimal("0.70"),
+                new BigDecimal("3.60"), new BigDecimal("0.10"), new BigDecimal("100.00"),
+                new BigDecimal("147.06"), "🥒", "vegetable", "#E8F8ED", "#27AE60", false);
+
+        seedFoodItem("RICE_WHITE", "Cơm Trắng Nấu Chín", "Lunch", "ATOMIC_INGREDIENT",
+                new BigDecimal("0.7500"), new BigDecimal("130.00"), new BigDecimal("2.70"),
+                new BigDecimal("28.20"), new BigDecimal("0.30"), new BigDecimal("200.00"),
+                new BigDecimal("266.67"), "🍚", "grain", "#F8F9F9", "#566573", false);
+
+        log.info("Initialized NutriLens Food Database seeds (28 food items across Composite Dishes & Atomic Ingredients).");
     }
 
     private void seedFoodItem(String foodCode, String displayName, String category,
+                              BigDecimal density, BigDecimal kcal100g, BigDecimal p100g,
+                              BigDecimal c100g, BigDecimal f100g, BigDecimal servingWeightG,
+                              BigDecimal servingVolumeCm3, String emoji, String iconType,
+                              String iconBgColor, String iconColor, boolean isHighlightedMore) {
+        seedFoodItem(foodCode, displayName, category, "COMPOSITE_DISH", density, kcal100g, p100g,
+                c100g, f100g, servingWeightG, servingVolumeCm3, emoji, iconType, iconBgColor, iconColor, isHighlightedMore);
+    }
+
+    private void seedFoodItem(String foodCode, String displayName, String category, String foodType,
                               BigDecimal density, BigDecimal kcal100g, BigDecimal p100g,
                               BigDecimal c100g, BigDecimal f100g, BigDecimal servingWeightG,
                               BigDecimal servingVolumeCm3, String emoji, String iconType,
@@ -150,6 +210,7 @@ public class NutritionEngineServiceImpl implements NutritionEngineService {
                     .foodCode(foodCode)
                     .displayName(displayName)
                     .category(category)
+                    .foodType(foodType)
                     .densityGramsPerCm3(density)
                     .kcalPer100g(kcal100g)
                     .proteinPer100g(p100g)
@@ -169,6 +230,7 @@ public class NutritionEngineServiceImpl implements NutritionEngineService {
             // Update fields if already exists
             food.setDisplayName(displayName);
             food.setCategory(category);
+            food.setFoodType(foodType);
             food.setDensityGramsPerCm3(density);
             food.setKcalPer100g(kcal100g);
             food.setProteinPer100g(p100g);
@@ -213,6 +275,7 @@ public class NutritionEngineServiceImpl implements NutritionEngineService {
                 .foodCode(food.getFoodCode())
                 .name(food.getDisplayName())
                 .category(food.getCategory() != null ? food.getCategory() : "Breakfast")
+                .foodType(food.getFoodType() != null ? food.getFoodType() : "COMPOSITE_DISH")
                 .kcal(totalKcal)
                 .weightG(weight)
                 .volumeCm3(food.getServingVolumeCm3() != null ? food.getServingVolumeCm3() : BigDecimal.valueOf(150))
@@ -265,6 +328,75 @@ public class NutritionEngineServiceImpl implements NutritionEngineService {
                 .fatGrams(fat)
                 .runningMinutesNeeded(runningMinutes)
                 .briskWalkingMinutesNeeded(walkingMinutes)
+                .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public MultiNutritionAnalysisResponseDTO analyzeMultiVolumetricPortion(MultiVolumetricNutritionRequestDTO request) {
+        BigDecimal totalEffectiveVolume = BigDecimal.ZERO;
+        BigDecimal totalEstimatedWeight = BigDecimal.ZERO;
+        BigDecimal totalCalories = BigDecimal.ZERO;
+        BigDecimal totalProtein = BigDecimal.ZERO;
+        BigDecimal totalCarb = BigDecimal.ZERO;
+        BigDecimal totalFat = BigDecimal.ZERO;
+
+        List<ComponentNutritionResultDTO> componentResults = new ArrayList<>();
+
+        for (VolumetricComponentItemDTO comp : request.getComponents()) {
+            FoodDensity food = foodDensityRepository.findByFoodCodeAndIsActiveTrue(comp.getFoodCode())
+                    .orElseThrow(() -> new EntityNotFoundException("Food density record not found for component code: " + comp.getFoodCode()));
+
+            BigDecimal effectiveVolume = comp.getVolumeCm3()
+                    .multiply(comp.getPortionRatio() != null ? comp.getPortionRatio() : BigDecimal.ONE)
+                    .setScale(2, RoundingMode.HALF_UP);
+
+            BigDecimal estimatedWeightGrams = effectiveVolume
+                    .multiply(food.getDensityGramsPerCm3())
+                    .setScale(2, RoundingMode.HALF_UP);
+
+            BigDecimal factorPerHundred = estimatedWeightGrams.divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP);
+
+            BigDecimal kcal = food.getKcalPer100g().multiply(factorPerHundred).setScale(1, RoundingMode.HALF_UP);
+            BigDecimal protein = food.getProteinPer100g().multiply(factorPerHundred).setScale(2, RoundingMode.HALF_UP);
+            BigDecimal carb = food.getCarbPer100g().multiply(factorPerHundred).setScale(2, RoundingMode.HALF_UP);
+            BigDecimal fat = food.getFatPer100g().multiply(factorPerHundred).setScale(2, RoundingMode.HALF_UP);
+
+            totalEffectiveVolume = totalEffectiveVolume.add(effectiveVolume);
+            totalEstimatedWeight = totalEstimatedWeight.add(estimatedWeightGrams);
+            totalCalories = totalCalories.add(kcal);
+            totalProtein = totalProtein.add(protein);
+            totalCarb = totalCarb.add(carb);
+            totalFat = totalFat.add(fat);
+
+            componentResults.add(ComponentNutritionResultDTO.builder()
+                    .foodCode(food.getFoodCode())
+                    .displayName(food.getDisplayName())
+                    .foodType(food.getFoodType() != null ? food.getFoodType() : "ATOMIC_INGREDIENT")
+                    .emoji(food.getEmoji())
+                    .effectiveVolumeCm3(effectiveVolume)
+                    .estimatedWeightGrams(estimatedWeightGrams)
+                    .caloriesKcal(kcal)
+                    .proteinGrams(protein)
+                    .carbGrams(carb)
+                    .fatGrams(fat)
+                    .build());
+        }
+
+        int runningMinutes = computeExerciseDuration(totalCalories, RUNNING_MET, request.getUserWeightKg());
+        int walkingMinutes = computeExerciseDuration(totalCalories, WALKING_MET, request.getUserWeightKg());
+
+        return MultiNutritionAnalysisResponseDTO.builder()
+                .totalComponentsCount(componentResults.size())
+                .totalEffectiveVolumeCm3(totalEffectiveVolume)
+                .totalEstimatedWeightGrams(totalEstimatedWeight)
+                .totalCaloriesKcal(totalCalories)
+                .totalProteinGrams(totalProtein)
+                .totalCarbGrams(totalCarb)
+                .totalFatGrams(totalFat)
+                .runningMinutesNeeded(runningMinutes)
+                .briskWalkingMinutesNeeded(walkingMinutes)
+                .components(componentResults)
                 .build();
     }
 

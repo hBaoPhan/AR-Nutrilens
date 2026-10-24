@@ -42,6 +42,21 @@ public class User {
     @Column(name = "height_cm", nullable = false, precision = 5, scale = 2)
     private BigDecimal heightCm = new BigDecimal("170.00");
 
+    @Column(nullable = false, length = 10)
+    private String gender = "MALE";
+
+    @Column(nullable = false)
+    private Integer age = 25;
+
+    @Column(name = "daily_calorie_goal", nullable = false)
+    private Integer dailyCalorieGoal = 2000;
+
+    @Column(name = "activity_level", length = 30)
+    private String activityLevel = "SEDENTARY";
+
+    @Column(name = "fitness_goal", length = 30)
+    private String fitnessGoal = "MAINTAIN";
+
     @Column(nullable = false, length = 20)
     private String role = "ROLE_USER";
 
@@ -71,6 +86,16 @@ public class User {
     public void setWeightKg(BigDecimal weightKg) { this.weightKg = weightKg; }
     public BigDecimal getHeightCm() { return heightCm; }
     public void setHeightCm(BigDecimal heightCm) { this.heightCm = heightCm; }
+    public String getGender() { return gender; }
+    public void setGender(String gender) { this.gender = gender; }
+    public Integer getAge() { return age; }
+    public void setAge(Integer age) { this.age = age; }
+    public Integer getDailyCalorieGoal() { return dailyCalorieGoal; }
+    public void setDailyCalorieGoal(Integer dailyCalorieGoal) { this.dailyCalorieGoal = dailyCalorieGoal; }
+    public String getActivityLevel() { return activityLevel; }
+    public void setActivityLevel(String activityLevel) { this.activityLevel = activityLevel; }
+    public String getFitnessGoal() { return fitnessGoal; }
+    public void setFitnessGoal(String fitnessGoal) { this.fitnessGoal = fitnessGoal; }
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
     public Boolean getIsActive() { return isActive; }
@@ -86,6 +111,11 @@ public class User {
         private String fullName;
         private BigDecimal weightKg = new BigDecimal("65.00");
         private BigDecimal heightCm = new BigDecimal("170.00");
+        private String gender = "MALE";
+        private Integer age = 25;
+        private Integer dailyCalorieGoal = 2000;
+        private String activityLevel = "SEDENTARY";
+        private String fitnessGoal = "MAINTAIN";
         private String role = "ROLE_USER";
         private Boolean isActive = true;
 
@@ -96,6 +126,11 @@ public class User {
         public Builder fullName(String fullName) { this.fullName = fullName; return this; }
         public Builder weightKg(BigDecimal weightKg) { this.weightKg = weightKg; return this; }
         public Builder heightCm(BigDecimal heightCm) { this.heightCm = heightCm; return this; }
+        public Builder gender(String gender) { this.gender = gender; return this; }
+        public Builder age(Integer age) { this.age = age; return this; }
+        public Builder dailyCalorieGoal(Integer dailyCalorieGoal) { this.dailyCalorieGoal = dailyCalorieGoal; return this; }
+        public Builder activityLevel(String activityLevel) { this.activityLevel = activityLevel; return this; }
+        public Builder fitnessGoal(String fitnessGoal) { this.fitnessGoal = fitnessGoal; return this; }
         public Builder role(String role) { this.role = role; return this; }
         public Builder isActive(Boolean isActive) { this.isActive = isActive; return this; }
 
@@ -108,6 +143,11 @@ public class User {
             u.fullName = this.fullName;
             u.weightKg = this.weightKg;
             u.heightCm = this.heightCm;
+            u.gender = this.gender;
+            u.age = this.age;
+            u.dailyCalorieGoal = this.dailyCalorieGoal;
+            u.activityLevel = this.activityLevel;
+            u.fitnessGoal = this.fitnessGoal;
             u.role = this.role;
             u.isActive = this.isActive;
             return u;

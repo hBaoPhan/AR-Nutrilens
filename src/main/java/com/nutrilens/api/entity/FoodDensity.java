@@ -32,6 +32,9 @@ public class FoodDensity {
     @Column(name = "category", length = 50)
     private String category = "Breakfast";
 
+    @Column(name = "food_type", length = 30)
+    private String foodType = "COMPOSITE_DISH";
+
     @Column(name = "density_g_per_cm3", nullable = false, precision = 6, scale = 4)
     private BigDecimal densityGramsPerCm3;
 
@@ -88,6 +91,8 @@ public class FoodDensity {
     public void setDisplayName(String displayName) { this.displayName = displayName; }
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }
+    public String getFoodType() { return foodType; }
+    public void setFoodType(String foodType) { this.foodType = foodType; }
     public BigDecimal getDensityGramsPerCm3() { return densityGramsPerCm3; }
     public void setDensityGramsPerCm3(BigDecimal densityGramsPerCm3) { this.densityGramsPerCm3 = densityGramsPerCm3; }
     public BigDecimal getKcalPer100g() { return kcalPer100g; }
@@ -126,6 +131,7 @@ public class FoodDensity {
         private String foodCode;
         private String displayName;
         private String category = "Breakfast";
+        private String foodType = "COMPOSITE_DISH";
         private BigDecimal densityGramsPerCm3;
         private BigDecimal kcalPer100g;
         private BigDecimal proteinPer100g;
@@ -144,6 +150,7 @@ public class FoodDensity {
         public Builder foodCode(String foodCode) { this.foodCode = foodCode; return this; }
         public Builder displayName(String displayName) { this.displayName = displayName; return this; }
         public Builder category(String category) { this.category = category; return this; }
+        public Builder foodType(String foodType) { this.foodType = foodType; return this; }
         public Builder densityGramsPerCm3(BigDecimal densityGramsPerCm3) { this.densityGramsPerCm3 = densityGramsPerCm3; return this; }
         public Builder kcalPer100g(BigDecimal kcalPer100g) { this.kcalPer100g = kcalPer100g; return this; }
         public Builder proteinPer100g(BigDecimal proteinPer100g) { this.proteinPer100g = proteinPer100g; return this; }
@@ -164,6 +171,7 @@ public class FoodDensity {
             entity.foodCode = this.foodCode;
             entity.displayName = this.displayName;
             entity.category = this.category;
+            entity.foodType = this.foodType;
             entity.densityGramsPerCm3 = this.densityGramsPerCm3;
             entity.kcalPer100g = this.kcalPer100g;
             entity.proteinPer100g = this.proteinPer100g;

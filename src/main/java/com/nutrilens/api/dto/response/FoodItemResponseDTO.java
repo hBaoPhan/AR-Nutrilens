@@ -17,6 +17,7 @@ public class FoodItemResponseDTO {
     private String foodCode;
     private String name;
     private String category;
+    private String foodType; // COMPOSITE_DISH or ATOMIC_INGREDIENT
     private BigDecimal kcal;
     private BigDecimal weightG;
     private BigDecimal volumeCm3;
@@ -37,6 +38,8 @@ public class FoodItemResponseDTO {
     public void setName(String name) { this.name = name; }
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }
+    public String getFoodType() { return foodType; }
+    public void setFoodType(String foodType) { this.foodType = foodType; }
     public BigDecimal getKcal() { return kcal; }
     public void setKcal(BigDecimal kcal) { this.kcal = kcal; }
     public BigDecimal getWeightG() { return weightG; }
@@ -67,6 +70,7 @@ public class FoodItemResponseDTO {
         private String foodCode;
         private String name;
         private String category;
+        private String foodType;
         private BigDecimal kcal;
         private BigDecimal weightG;
         private BigDecimal volumeCm3;
@@ -83,6 +87,7 @@ public class FoodItemResponseDTO {
         public Builder foodCode(String foodCode) { this.foodCode = foodCode; return this; }
         public Builder name(String name) { this.name = name; return this; }
         public Builder category(String category) { this.category = category; return this; }
+        public Builder foodType(String foodType) { this.foodType = foodType; return this; }
         public Builder kcal(BigDecimal kcal) { this.kcal = kcal; return this; }
         public Builder weightG(BigDecimal weightG) { this.weightG = weightG; return this; }
         public Builder volumeCm3(BigDecimal volumeCm3) { this.volumeCm3 = volumeCm3; return this; }
@@ -101,6 +106,7 @@ public class FoodItemResponseDTO {
             dto.foodCode = this.foodCode;
             dto.name = this.name;
             dto.category = this.category;
+            dto.foodType = this.foodType;
             dto.kcal = this.kcal;
             dto.weightG = this.weightG;
             dto.volumeCm3 = this.volumeCm3;

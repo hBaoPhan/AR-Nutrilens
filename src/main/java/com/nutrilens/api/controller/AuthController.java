@@ -2,6 +2,7 @@ package com.nutrilens.api.controller;
 
 import com.nutrilens.api.dto.request.LoginRequestDTO;
 import com.nutrilens.api.dto.request.RegisterRequestDTO;
+import com.nutrilens.api.dto.request.UpdateProfileRequestDTO;
 import com.nutrilens.api.dto.response.AuthResponseDTO;
 import com.nutrilens.api.service.AuthService;
 import jakarta.validation.Valid;
@@ -52,5 +53,19 @@ public class AuthController {
         }
         log.info(">>> [AUTH API] GET /api/v1/auth/me for principal: '{}'", principal.getName());
         return ResponseEntity.ok(authService.getCurrentUser(principal.getName()));
+    }
+
+    @PutMapping("/profile")
+    public ResponseEntity<AuthResponseDTO> updateProfile(
+            @Valid @RequestBody UpdateProfileRequestDTO request,
+            @RequestParam(required = false) String username,
+            java.security.Principal principal) {
+        String targetUsername = (principal != null) ? principal.getName() : username;
+        if (targetUsername == null || targetUsername.isBlank()) {
+            targetUsername = "admin";
+        }
+        log.info(">>> [AUTH API] PUT /api/v1/auth/profile for user: '{}', targetCalorieGoal={}", targetUsername, request.getDailyCalorieGoal());
+        AuthResponseDTO response = authService.updateProfile(targetUsername, request);
+        return ResponseEntity.ok(response);
     }
 }

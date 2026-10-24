@@ -2,6 +2,7 @@ package com.nutrilens.api.service.impl;
 
 import com.nutrilens.api.dto.request.LoginRequestDTO;
 import com.nutrilens.api.dto.request.RegisterRequestDTO;
+import com.nutrilens.api.dto.request.UpdateProfileRequestDTO;
 import com.nutrilens.api.dto.response.AuthResponseDTO;
 import com.nutrilens.api.entity.User;
 import com.nutrilens.api.exception.EntityNotFoundException;
@@ -97,9 +98,16 @@ public class AuthServiceImpl implements AuthService {
                 .tokenType("Bearer")
                 .userId(user.getId())
                 .username(user.getUsername())
+                .email(user.getEmail())
                 .fullName(user.getFullName())
                 .role(user.getRole())
                 .weightKg(user.getWeightKg())
+                .heightCm(user.getHeightCm())
+                .dailyCalorieGoal(user.getDailyCalorieGoal())
+                .gender(user.getGender())
+                .age(user.getAge())
+                .activityLevel(user.getActivityLevel())
+                .fitnessGoal(user.getFitnessGoal())
                 .build();
     }
 
@@ -122,6 +130,12 @@ public class AuthServiceImpl implements AuthService {
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .fullName(request.getFullName())
                 .weightKg(request.getWeightKg() != null ? request.getWeightKg() : new BigDecimal("65.00"))
+                .heightCm(new BigDecimal("170.00"))
+                .dailyCalorieGoal(2000)
+                .gender("MALE")
+                .age(25)
+                .activityLevel("SEDENTARY")
+                .fitnessGoal("MAINTAIN")
                 .role("ROLE_USER")
                 .isActive(true)
                 .build();
@@ -134,9 +148,16 @@ public class AuthServiceImpl implements AuthService {
                 .tokenType("Bearer")
                 .userId(savedUser.getId())
                 .username(savedUser.getUsername())
+                .email(savedUser.getEmail())
                 .fullName(savedUser.getFullName())
                 .role(savedUser.getRole())
                 .weightKg(savedUser.getWeightKg())
+                .heightCm(savedUser.getHeightCm())
+                .dailyCalorieGoal(savedUser.getDailyCalorieGoal())
+                .gender(savedUser.getGender())
+                .age(savedUser.getAge())
+                .activityLevel(savedUser.getActivityLevel())
+                .fitnessGoal(savedUser.getFitnessGoal())
                 .build();
     }
 
@@ -149,9 +170,62 @@ public class AuthServiceImpl implements AuthService {
         return AuthResponseDTO.builder()
                 .userId(user.getId())
                 .username(user.getUsername())
+                .email(user.getEmail())
                 .fullName(user.getFullName())
                 .role(user.getRole())
                 .weightKg(user.getWeightKg())
+                .heightCm(user.getHeightCm())
+                .dailyCalorieGoal(user.getDailyCalorieGoal())
+                .gender(user.getGender())
+                .age(user.getAge())
+                .activityLevel(user.getActivityLevel())
+                .fitnessGoal(user.getFitnessGoal())
+                .tokenType("Bearer")
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public AuthResponseDTO updateProfile(String username, UpdateProfileRequestDTO request) {
+        log.info("[AUTH SERVICE] Updating personalized profile for user '{}': weight={}, height={}, dailyCalorieGoal={}",
+                username, request.getWeightKg(), request.getHeightCm(), request.getDailyCalorieGoal());
+
+        User user = userRepository.findByUsernameAndIsActiveTrue(username)
+                .orElseThrow(() -> new EntityNotFoundException("User not found: " + username));
+
+        user.setWeightKg(request.getWeightKg());
+        user.setHeightCm(request.getHeightCm());
+        user.setDailyCalorieGoal(request.getDailyCalorieGoal());
+
+        if (request.getGender() != null && !request.getGender().isBlank()) {
+            user.setGender(request.getGender().toUpperCase());
+        }
+        if (request.getAge() != null && request.getAge() > 0) {
+            user.setAge(request.getAge());
+        }
+        if (request.getActivityLevel() != null && !request.getActivityLevel().isBlank()) {
+            user.setActivityLevel(request.getActivityLevel());
+        }
+        if (request.getFitnessGoal() != null && !request.getFitnessGoal().isBlank()) {
+            user.setFitnessGoal(request.getFitnessGoal());
+        }
+
+        User updatedUser = userRepository.save(user);
+        log.info("[AUTH SERVICE] User '{}' profile successfully updated.", username);
+
+        return AuthResponseDTO.builder()
+                .userId(updatedUser.getId())
+                .username(updatedUser.getUsername())
+                .email(updatedUser.getEmail())
+                .fullName(updatedUser.getFullName())
+                .role(updatedUser.getRole())
+                .weightKg(updatedUser.getWeightKg())
+                .heightCm(updatedUser.getHeightCm())
+                .dailyCalorieGoal(updatedUser.getDailyCalorieGoal())
+                .gender(updatedUser.getGender())
+                .age(updatedUser.getAge())
+                .activityLevel(updatedUser.getActivityLevel())
+                .fitnessGoal(updatedUser.getFitnessGoal())
                 .tokenType("Bearer")
                 .build();
     }

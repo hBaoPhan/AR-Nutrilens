@@ -1,7 +1,9 @@
 package com.nutrilens.api.controller;
 
+import com.nutrilens.api.dto.request.MultiVolumetricNutritionRequestDTO;
 import com.nutrilens.api.dto.request.VolumetricNutritionRequestDTO;
 import com.nutrilens.api.dto.response.FoodItemResponseDTO;
+import com.nutrilens.api.dto.response.MultiNutritionAnalysisResponseDTO;
 import com.nutrilens.api.dto.response.NutritionAnalysisResponseDTO;
 import com.nutrilens.api.service.NutritionEngineService;
 import jakarta.validation.Valid;
@@ -26,6 +28,13 @@ public class NutritionEngineController {
     public ResponseEntity<NutritionAnalysisResponseDTO> analyzePortion(
             @Valid @RequestBody VolumetricNutritionRequestDTO request) {
         NutritionAnalysisResponseDTO response = nutritionEngineService.analyzeVolumetricPortion(request);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/multi-volumetric-analyze")
+    public ResponseEntity<MultiNutritionAnalysisResponseDTO> analyzeMultiPortion(
+            @Valid @RequestBody MultiVolumetricNutritionRequestDTO request) {
+        MultiNutritionAnalysisResponseDTO response = nutritionEngineService.analyzeMultiVolumetricPortion(request);
         return ResponseEntity.ok(response);
     }
 
